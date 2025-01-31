@@ -1064,9 +1064,10 @@ func DoEstimateGas(ctx context.Context, b Backend, args TransactionArgs, blockNr
 		return 0, err
 	}
 	defer state.Release()
-	if err = overrides.Apply(state); err != nil {
+	if err := overrides.Apply(state); err != nil {
 		return 0, err
 	}
+
 	// Binary search the gas requirement, as it may be higher than the amount used
 	var (
 		lo  uint64 = params.TxGas - 1
@@ -1128,7 +1129,7 @@ func DoEstimateGas(ctx context.Context, b Backend, args TransactionArgs, blockNr
 	executable := func(gas uint64) (bool, *core.ExecutionResult, error) {
 		args.Gas = (*hexutil.Uint64)(&gas)
 
-		result, err := DoCall(ctx, b, args, blockNrOrHash, nil, 0, gasCap)
+		result, err := DoCall(ctx, b, args, blockNrOrHash, overrides, 0, gasCap)
 		if err != nil {
 			if errors.Is(err, evmcore.ErrIntrinsicGas) {
 				return true, nil, nil // Special case, raise gas limit
